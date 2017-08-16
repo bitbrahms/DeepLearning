@@ -1,0 +1,4 @@
+1.The code for the examples in Ch.2 is contained in the python module: kNN.py.
+2.The examples assume that datingTestSet.txt is in the current working directory.  
+3.Folders testDigits, and trainingDigits are assumed to be in this folder also. 
+4.kNN_tb.ipynb is the result for code.
