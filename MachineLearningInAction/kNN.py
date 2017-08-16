@@ -90,6 +90,7 @@ def img2vector(filename):
 #手写数字识别系统测试代码
 def handwritingClassTest():
     hwLabels = []
+    #处理training数据，转换成矩阵
     trainingFilesList = listdir('trainingDigits')
     num = len(trainingFilesList)
     trainingMat = zeros((num,1024))
@@ -99,6 +100,7 @@ def handwritingClassTest():
         classNumStr = int(fileStr.split('_')[0])
         hwLabels.append(classNumStr)
         trainingMat[i,:] = img2vector('trainingDigits/%s' % fileNameStr)
+    #处理test数据
     testFileList = listdir('testDigits')
     errorCount = 0.0
     mtest = len(testFileList)
@@ -112,4 +114,6 @@ def handwritingClassTest():
         if(classfyResult != classNumStr):
             errorCount += 1.0
     print("\nthe total number of errors is :%d" % errorCount)
-    print("\nthe total error rate is :%f" % (errorCount/float(mtest)))   
+    print("\nthe total error rate is :%f" % (errorCount/float(mtest)))
+    
+#
