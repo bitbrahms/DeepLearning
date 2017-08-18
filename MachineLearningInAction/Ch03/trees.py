@@ -30,8 +30,8 @@ def calShannonEnt(dataSet):
 #create dataSet
 def createdataSet():
     dataSet = [[1,1,'yes'],
-    [1,1,'yes'],
-    [1,0,'no'],
+    [1,1,'yes'],    
+    [1,0,'yes'],
     [0,1,'no'],
     [0,1,'no']]
     labels = ['no surfacing','flippers']
