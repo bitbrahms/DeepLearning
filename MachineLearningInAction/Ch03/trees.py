@@ -98,7 +98,33 @@ def createTree(dataSet,labels):
         subLabels = labels[:] #[:],复制labels给到subLabels
         myTree[bestFeatureLabel][value] = createTree(splitdataSet(dataSet,bestFeature,value),subLabels)
     return myTree
-
+    
+#
+def classfy(inputTree, featureLabels, testVec):
+    firstStrtemp = list(inputTree.keys())
+    firstStr = firstStrtemp[0]
+    secondDict = inputTree[firstStr]
+    featureIndex = featureLabels.index(firstStr)
+    for key in secondDict.keys():
+        if testVec[featureIndex] ==key:
+            if type(secondDict[key]).__name__ == 'dict':
+                classLabel = classfy(secondDict[key], featureLabels, testVec)
+            else:
+                classLabel = secondDict[key]
+    return classLabel
+    
+#使用pickle模块存储决策树
+def storeTree(inputTree,filename):
+    import pickle
+    fw = open(filename,'wb')
+    pickle.dump(inputTree,fw)
+    fw.close()
+    
+def grabTree(filename):
+    import pickle
+    fr = open(filename,'rb')
+    return pickle.load(fr)
+ 
     
     
         
