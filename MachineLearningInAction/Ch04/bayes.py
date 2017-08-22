@@ -82,14 +82,14 @@ def testingBayes():
    
 #bag of words
 def bagofWords2Vec(vocabList,inputSet):
-    returnVec = [0]*len(vocabList)
+    returnVec = [0]*len(vocabList)#创建词汇列表对应位全为0的list
     for word in inputSet:
         if word in vocabList:
-            returnVec[vocabList.index(word)] += 1
+            returnVec[vocabList.index(word)] += 1#统计词汇出现频次
     return returnVec
     
 #切割文件
-def textParse(bigString):
+def textParse(bigString):#切割文件
     listofToken = bigString.split('\W*')
     return [token.lower() for token in listofToken if len(token) > 2]
 
@@ -118,9 +118,11 @@ def spamTest():
         del(trainingSet[randIndex])
     trainMatrix = []
     trainCategory = []
+    #创建训练矩阵以及对应的标签
     for doc in trainingSet:
         trainMatrix.append(setWords2Vec(vocabList, docList[doc]))
         trainCategory.append(classList[doc])
+    #计算概率
     p0_v, p1_v, pSpam = trainBayes(trainMatrix, trainCategory)
     errorCount = 0
     for doc in testSet:
@@ -138,7 +140,7 @@ def calMostFreq(vocabList, fullText):
     sortedFreq = sorted(freqDict.items(), key=operator.itemgetter(1), reverse=True)
     return sortedFreq[:30]
     
-def localWords(feed1, feed0):
+def localWords(feed1, feed0):#feed0和feed1是两个rss源
     import feedparser
     docList = []
     classList = []
@@ -153,24 +155,32 @@ def localWords(feed1, feed0):
         docList.append(wordList)
         fullText.extend(wordList)
         classList.append(0)
+    #创建不重复词汇列表
     vocabList = createVocabList(docList)
+    #滤出高频词汇
     top30Words = calMostFreq(vocabList, fullText)
+    #移除词汇列表中的高频词汇
     for words in top30Words:
         if words[0] in vocabList:
             vocabList.remove(words[0])
+    
     trainingSet = list(range(2*minLen))
     testSet = []
+    #创建testSet
     for i in range(20):
         randIndex = int(np.random.uniform(0,len(trainingSet)))
         testSet.append(trainingSet[randIndex])
         del(trainingSet[randIndex])
+        
     trainMatrix = []
     trainCategory = []
+    #创建train矩阵以及标签
     for doc in trainingSet:
         trainMatrix.append(bagofWords2Vec(vocabList,docList[doc]))
         trainCategory.append(classList[doc])
     p0_v,p1_v,pSpam = trainBayes(trainMatrix,trainCategory)
     errorCount = 0.0
+    #检测分类效果
     for doc in testSet:
         wordVector = bagofWords2Vec(vocabList, docList[doc])
         if classfyBayes(wordVector,p0_v,p1_v,pSpam) != classList[doc]:
