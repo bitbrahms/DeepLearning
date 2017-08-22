@@ -84,7 +84,7 @@ def testingBayes():
 def bagofWords2Vec(vocabList,inputSet):
     returnVec = [0]*len(vocabList)
     for word in inputSet:
-        if word in vocabSet:
+        if word in vocabList:
             returnVec[vocabList.index(word)] += 1
     return returnVec
     
@@ -99,18 +99,18 @@ def spamTest():
     classList = []
     fullText = []
     for i in range(1,26):
-        wordList = textParse(open('email/spam/%d.txt' % i,'rb').read())
+        wordList = textParse(open('email/spam/%d.txt' % i).read())
         docList.append(wordList)
         fullText.append(wordList)
         classList.append(1)
         
-        wordList = textParse(open('email/ham/%d.txt' % i,'rb').read())
+        wordList = textParse(open('email/ham/%d.txt' % i,'r',encoding='utf-8').read())
         docList.append(wordList)
         fullText.append(wordList)
         classList.append(0)
         
     vocabList = createVocabList(docList)
-    trainingSet = range(50)
+    trainingSet = list(range(50))
     testSet = []
     for i in range(10):
         randIndex = int(np.random.uniform(0,len(trainingSet)))
@@ -128,3 +128,70 @@ def spamTest():
         if classfyBayes(wordVector,p0_v,p1_v,pSpam) != classList[doc]:
             errorCount += 1
     print('the error rate is : ', float((errorCount)/len(testSet)))
+    
+#高频词去除函数以及RSS源分类器
+def calMostFreq(vocabList, fullText):
+    import operator
+    freqDict = {}
+    for token in vocabList:
+        freqDict[token] = fullText.count(token)
+    sortedFreq = sorted(freqDict.items(), key=operator.itemgetter(1), reverse=True)
+    return sortedFreq[:30]
+    
+def localWords(feed1, feed0):
+    import feedparser
+    docList = []
+    classList = []
+    fullText = []
+    minLen = min(len(feed1['entries']), len(feed0['entries']))
+    for i in range(minLen):
+        wordList = textParse(feed1['entries'][i]['summary'])
+        docList.append(wordList)
+        fullText.extend(wordList)
+        classList.append(1)
+        wordList = textParse(feed0['entries'][i]['summary'])
+        docList.append(wordList)
+        fullText.extend(wordList)
+        classList.append(0)
+    vocabList = createVocabList(docList)
+    top30Words = calMostFreq(vocabList, fullText)
+    for words in top30Words:
+        if words[0] in vocabList:
+            vocabList.remove(words[0])
+    trainingSet = list(range(2*minLen))
+    testSet = []
+    for i in range(20):
+        randIndex = int(np.random.uniform(0,len(trainingSet)))
+        testSet.append(trainingSet[randIndex])
+        del(trainingSet[randIndex])
+    trainMatrix = []
+    trainCategory = []
+    for doc in trainingSet:
+        trainMatrix.append(bagofWords2Vec(vocabList,docList[doc]))
+        trainCategory.append(classList[doc])
+    p0_v,p1_v,pSpam = trainBayes(trainMatrix,trainCategory)
+    errorCount = 0.0
+    for doc in testSet:
+        wordVector = bagofWords2Vec(vocabList, docList[doc])
+        if classfyBayes(wordVector,p0_v,p1_v,pSpam) != classList[doc]:
+            errorCount += 1
+    print('the error rate is: ',float(errorCount/len(testSet)))
+    return vocabList,p0_v,p1_v
+    
+#最具表征性函数
+def getTopWords(ny,sf):
+    import operator
+    vocabList,p0_v,p1_v = localWords(ny,sf)
+    topny = []
+    topsf = []
+    for i in range(len(p0_v)):
+        if p0_v[i] > -6.0:
+            topsf.append((vocabList[i],p0_v[i]))
+        if p1_v[i] > -6.0:
+            topny.append((vocabList[i],p1_v[i]))
+    sortedsf = sorted(topsf, key=operator.itemgetter(1), reverse=True)
+    for i in sortedsf:
+        print(i[0])
+    sortedny = sorted(topny, key=operator.itemgetter(1), reverse=True)
+    for i in sortedny:
+        print(i[0])
