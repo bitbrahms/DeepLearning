@@ -4,6 +4,7 @@ Created on Aug 22, 2017
 @author: manny
 '''
 import numpy as np
+from math import exp
 
 
 #加载数据
@@ -129,7 +130,7 @@ def simplifiedSmo(dataMatrix,labelMatrix,C,toler,maxIter):#toler，容错率；
      
 #
 class optStruct:
-    def __init__(self,dataMatrix,labelMatrix,C,toler):
+    def __init__(self,dataMatrix,labelMatrix,C,toler,kTup):
         self.dataMatrix  =dataMatrix
         self.labelMatrix = labelMatrix
         self.C = C
@@ -138,29 +139,37 @@ class optStruct:
         self.alphas = np.mat(np.zeros((self.row, 1)))
         self.b = 0
         #第一列是是否有效的标志位，第二列是实际E值
-        self.ecache = np.dataMatrix(np.zeros((self.row, 2)))
+        self.ecache = np.mat(np.zeros((self.row, 2)))
+        self.kTup = np.mat(np.zeros((self.row,self.row)))
+        for i in range(self.row):
+            self.kTup[:, i] = kernalTrans(self.dataMatrix, self.dataMatrix[i, :], kTup)
 
 #计算E值并返回        
-def calcEk(optStruct, k):
-    fxk = np.multiply(optStruct.alphas,optStruct.labelMatrix).transpose() * \
-            (optStruct.dataMatrix * optStruct.dataMatrix[i,:].transpose()) + optStruct.b
-    Ek= fxk - float(optStruct.labelMatrix[k])
+def calcEk(optStr, k):
+    '''
+    fxk = np.multiply(optStr.alphas,optStr.labelMatrix).transpose() * \
+            (optStr.dataMatrix * optStr.dataMatrix[k,:].transpose()) + optStr.b
+    Ek= fxk - float(optStr.labelMatrix[k])
+    '''
+    fxk = np.multiply(optStr.alphas,optStr.labelMatrix).transpose() * \
+            optStr.kTup[:,k]+ optStr.b
+    Ek= fxk - float(optStr.labelMatrix[k])  
     return Ek
  
 #选择合适的第二个alpha值，以保证每次优化中采用最大步长 
-def selectJ(i, optStruct, Ei):
+def selectJ(i, optStr, Ei):
     maxK = -1
     maxDeltaE = 0
     Ej = 0
-    optStruct.ecache[i] = [1,Ei]
+    optStr.ecache[i] = [1,Ei]
     #nonzero返回非零的矩阵行和列信息，[0]即为非零值E对应的alpha值
-    validEcacheList = np.nonzeros(optStruct.ecache[:,0])[0]
+    validEcacheList = np.nonzero(optStr.ecache[:,0])[0]
     
     if (len(validEcacheList)) > 1:
         for k in validEcacheList:
             if k == i:
                 continue
-            Ek = calcEk(optStruct, k)
+            Ek = calcEk(optStr, k)
             deltaE = abs(Ei - Ek)
             if(deltaE > maxDeltaE):
                 maxK = k
@@ -169,85 +178,92 @@ def selectJ(i, optStruct, Ei):
         return maxK,Ej
     #如果这是第一次循环的话，随机选择一个alpha值
     else:
-        j = selRand(i, optStruct.row)
-        Ej = calcEk(optStruct, j)
+        j = selRand(i, optStr.row)
+        Ej = calcEk(optStr, j)
     return j,Ej
  
  #计算误差E并保存起来
-def updateEk(optStruct, k):
-    Ek = calcEk(optStruct, k)
-    optStruct.ecache[k] = [1,Ek]
+def updateEk(optStr, k):
+    Ek = calcEk(optStr, k)
+    optStr.ecache[k] = [1,Ek]
     
 #
-def innerL(i,optStruct):
-    Ei = calcEk(optStruct, i)
-    if(((optStruct.labelMatrix[i] * Ei < -optStruct.toler) and (optStruct.alphas[i] < optStruct.C))or \
-        ((optStruct.labelMatrix[i] * Ei > optStruct.toler) and (optStruct.alphas[i] > 0))):
-        j,Ej = selectJ(i,optStruct,Ei)
-        alphaIold = optStruct.alphas[i].copy()
-        alphaJold = optStruct.alphas[j].copy()
-        if(optStruct.labelMatrix[i] != optStruct.labelMatrix[j]):
-            L = max(0, optStruct.alphas[j] - optStruct.alphas[i])
-            H = min(optStruct.C, optStruct.C + optStruct.alphas[j] - optStruct.alphas[i])
+def innerL(i,optStr):
+    Ei = calcEk(optStr, i)
+    if(((optStr.labelMatrix[i] * Ei < -optStr.toler) and (optStr.alphas[i] < optStr.C))or \
+        ((optStr.labelMatrix[i] * Ei > optStr.toler) and (optStr.alphas[i] > 0))):
+        j,Ej = selectJ(i,optStr,Ei)
+        alphaIold = optStr.alphas[i].copy()
+        alphaJold = optStr.alphas[j].copy()
+        if(optStr.labelMatrix[i] != optStr.labelMatrix[j]):
+            L = max(0, optStr.alphas[j] - optStr.alphas[i])
+            H = min(optStr.C, optStr.C + optStr.alphas[j] - optStr.alphas[i])
         else:
-            L = max(0, optStruct.alphas[j] + optStruct.alphas[i] - optStruct.C)
-            H = min(optStruct.C, optStruct.alphas[j] + optStruct.alphas[i])
+            L = max(0, optStr.alphas[j] + optStr.alphas[i] - optStr.C)
+            H = min(optStr.C, optStr.alphas[j] + optStr.alphas[i])
         if(L == H):
             print('L==H')
-            continue
-        eta = 2.0 * optStruct.dataMatrix[i,:] * optStruct.dataMatrix[j,:].transpose() - \
-                    optStruct.dataMatrix[i,:] * optStruct.dataMatrix[i,:].transpose() - \
-                    optStruct.dataMatrix[j,:] * optStruct.dataMatrix[j,:].transpose()
+            return 0
+        #eta = 2.0 * optStr.dataMatrix[i,:] * optStr.dataMatrix[j,:].transpose() - \
+        #           optStr.dataMatrix[i,:] * optStr.dataMatrix[i,:].transpose() - \
+        #            optStr.dataMatrix[j,:] * optStr.dataMatrix[j,:].transpose()
+        eta = 2.0 * optStr.kTup[i,j] - optStr.kTup[i,i] - optStr.kTup[j,j]
         if(eta >= 0):
             print('eta>=0')
             return 0
-        optStruct.alphas[j] -= optStruct.labelMatrix[j] * (Ei - Ej)/eta
-        optStruct.alphas[j] = clipAlpha(optStruct.alphas[j],H,L)
-        updateEk(optStruct,j)
-        if(abs(optStruct.alphas[j] - alphaJold) < 0.00001):
+        optStr.alphas[j] -= optStr.labelMatrix[j] * (Ei - Ej)/eta
+        optStr.alphas[j] = clipAlpha(optStr.alphas[j],H,L)
+        updateEk(optStr,j)
+        if(abs(optStr.alphas[j] - alphaJold) < 0.00001):
             print('j not moving enough')
-            continue
+            return 0
                 #根据alphasp[j]计算alphas[i]
-        optStruct.alphas[i] += optStruct.labelMatrix[j] * optStruct.labelMatrix[i] * \
-                                (alphaJold - optStruct.alphas[j])
+        optStr.alphas[i] += optStr.labelMatrix[j] * optStr.labelMatrix[i] * \
+                                (alphaJold - optStr.alphas[j])
                 #如果alpha是[i]落在[0,C],则选择b1,
-        updateEk(optStruct,i)
-        b1 = optStruct.b -Ei - optStruct.labelMatrix[i] * (optStruct.alphas[i] - alphaIold) * \
-            optStruct.dataMatrix[i,:] * optStruct.dataMatrix[i,:].transpose() - \
-            optStruct.labelMatrix[j] * (optStruct.alphas[j] - alphaJold) * \
-            optStruct.dataMatrix[i,:] * optStruct.dataMatrix[j,:].transpose()
+        updateEk(optStr,i)
+        '''
+        b1 = optStr.b -Ei - optStr.labelMatrix[i] * (optStr.alphas[i] - alphaIold) * \
+            optStr.dataMatrix[i,:] * optStr.dataMatrix[i,:].transpose() - \
+            optStr.labelMatrix[j] * (optStr.alphas[j] - alphaJold) * \
+            optStr.dataMatrix[i,:] * optStr.dataMatrix[j,:].transpose()
                 #如果alpha是[j]落在[0,C],则选择b2,
-        b2 = optStruct.b -Ej -optStruct.labelMatrix[i] * (optStruct.alphas[i] - alphaIold) * \
-            optStruct.dataMatrix[i,:] * optStruct.dataMatrix[j,:].transpose() - \
-            optStruct.labelMatrix[j] * (optStruct.alphas[j] - alphaJold) * \
-            optStruct.dataMatrix[j,:] * optStruct.dataMatrix[j,:].transpose()
-        if((optStruct.alphas[i] < optStruct.C) and (optStruct.alphas[i] > 0)):
-            optStruct.b = b1
-        elif((optStruct.alphas[j] < optStruct.C) and (optStruct.alphas[j] > 0)):
-            optStruct.b = b2
+        b2 = optStr.b -Ej -optStr.labelMatrix[i] * (optStr.alphas[i] - alphaIold) * \
+            optStr.dataMatrix[i,:] * optStr.dataMatrix[j,:].transpose() - \
+            optStr.labelMatrix[j] * (optStr.alphas[j] - alphaJold) * \
+            optStr.dataMatrix[j,:] * optStr.dataMatrix[j,:].transpose()
+        '''
+        b1 = optStr.b - Ei - optStr.labelMatrix[i] * (optStr.alphas[i] - alphaIold) * optStr.kTup[i,i] - \
+                            optStr.labelMatrix[j] * (optStr.alphas[j] - alphaJold) * optStr.kTup[i,j]
+        b2 = optStr.b - Ei - optStr.labelMatrix[i] * (optStr.alphas[i] - alphaIold) * optStr.kTup[i,j] - \
+                            optStr.labelMatrix[j] * (optStr.alphas[j] - alphaJold) * optStr.kTup[j,j]            
+        if((optStr.alphas[i] < optStr.C) and (optStr.alphas[i] > 0)):
+            optStr.b = b1
+        elif((optStr.alphas[j] < optStr.C) and (optStr.alphas[j] > 0)):
+            optStr.b = b2
                 #否则选择b1,b2均值
         else:
-            optStruct.b = (b1 + b2)/2.0 
+            optStr.b = (b1 + b2)/2.0 
         return 1
     else:
         return 0
-        
+
 def smoP(dataMatrix,labelMatrix,C,toler,maxIter,kTup=('lin', 0)):
-    optStruct = optStruct(np.mat(dataMatrix), np.mat(labelMatrix).transpose(), C, toler)
+    optStr = optStruct(np.mat(dataMatrix), np.mat(labelMatrix).transpose(), C, toler, kTup)
     iterNum = 0
     entriesSet = True
     alphasPairsChanged = 0
     while((iterNum < maxIter) and (alphasPairsChanged > 0) or (entriesSet)):
         alphasPairsChanged = 0
         if entriesSet:
-            for i in range(optStruct.row):
-                alphasPairsChanged += innerL(i, optStruct)
+            for i in range(optStr.row):
+                alphasPairsChanged += innerL(i, optStr)
             print("fullSet,iter: %d i: %d, pairs changed %d" % (iterNum, i, alphasPairsChanged))
             iterNum += 1
         else:
-            nonBoundIS = np.nonzore((optStruct.alphas > 0) * (optStruct.alphas < C))[0]
+            nonBoundIS = np.nonzero((np.array(optStr.alphas) > 0) * (np.array(optStr.alphas) < C))[0]
             for i in nonBoundIS:
-                alphasPairsChanged += innerL(i,optStruct)
+                alphasPairsChanged += innerL(i,optStr)
                 print("nonBoundIS, iter :%d i: %d,pairs changed %d" % (iterNum, i,alphasPairsChanged))
             iterNum += 1
         if entriesSet:
@@ -255,4 +271,58 @@ def smoP(dataMatrix,labelMatrix,C,toler,maxIter,kTup=('lin', 0)):
         elif (alphasPairsChanged == 0):
             entriesSet = True
         print("iternation num :%d" % iterNum)
-    return optStruct.b,optStruct.alphas
+    return optStr.b,optStr.alphas
+
+def calcWs(alphas, dataMatrix, labelMatrix):
+    dataMatrix = np.mat(dataMatrix)
+    labelMatrix = np.mat(labelMatrix).transpose()
+    row, col = np.shape(dataMatrix)
+    w = np.zeros((col, 1))
+    for i in range(row):
+        w += np.multiply(alphas[i] * labelMatrix[i], dataMatrix[i,:].transpose())
+    return w
+    
+#核函数
+def kernalTrans(X, A, kTup):
+    row, col = np.shape(X)
+    K = np.mat(np.zeros((row, 1)))
+    if kTup[0] =='lin':
+        K = np.mat(X*A).transpose()
+    elif kTup[0] == 'rbf':
+        for i in range(row):
+            deltaRow = X[i,:] - A
+            K[i] = deltaRow * deltaRow.transpose()
+            K[i] = exp(K[i] / (-1*kTup[1]**2))
+    else:
+        raise NameError('Houston we have a probles -- Taht kerbel is not recognized')
+    return K
+    
+#径向基测试函数
+def testRbf(k1=1.3):
+    dataMatrix, labelMatrix =loadDataSet('testSetRBF.txt')
+    b, alphas = smoP(dataMatrix,labelMatrix,200,0.0001,10000,('rbf', k1))
+    dataMatrix = np.mat(dataMatrix)
+    labelMatrix = np.mat(labelMatrix).transpose()
+    svInd = np.nonzero(np.array(alphas) > 0 )[0]
+    sVs =dataMatrix[svInd]
+    labelSV = labelMatrix[svInd]
+    print("there are %d support machines" % np.shape(sVs)[0])
+    row, col =np.shape(dataMatrix)
+    errorCount = 0
+    for i in range(row):
+        kernalEval = kernalTrans(sVs,dataMatrix[i,:],('rbf',k1))
+        predict = kernalEval.transpose() * np.multiply(labelSV,alphas[svInd]) + b
+        if np.sign(predict) != np.sign(labelMatrix[i]):
+            errorCount += 1
+    print("the training rate is %f" % (float(errorCount)/row))
+    dataMatrix,labelMatrix = loadDataSet('testSetRBF2.txt')
+    errorCount = 0
+    dataMatrix = np.mat(dataMatrix)
+    labelMatrix = np.mat(labelMatrix).transpose()
+    row,col =np.shape(dataMatrix)
+    for i in range(row):
+        kernalEval = kernalTrans(sVs,dataMatrix[i,:],('rbf',k1))
+        predict = kernalEval.transpose() * np.multiply(labelSV,alphas[svInd]) + b
+        if np.sign(predict) != np.sign(labelMatrix[i]):
+            errorCount += 1
+    print("the test rate is %f" % (float(errorCount)/row))        
