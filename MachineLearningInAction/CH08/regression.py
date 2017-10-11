@@ -144,9 +144,6 @@ import json
 import urllib
 def searchForSet(retX, retY, setNum, yr, numPce, origPrc):
     sleep(10)
-    #myAPIstr = 'AIzaSyD2cR2KFyx12hXu6PFU-wrWot3NXvko8vY'
-    #searchURL = 'https://www.googleapis.com/shopping/search/v1/public/products?\
-    #key=%s&country=US&q=lego+%d&alt=json' % (myAPIstr, setNum)
     myAPIstr = 'AIzaSyD2cR2KFyx12hXu6PFU-wrWot3NXvko8vY'  
     searchURL = 'https://www.googleapis.com/shopping/search/v1/public/products?key=%s&country=US&q=lego+%d&alt=json' % (myAPIstr, setNum)  
     pg = urllib.request.urlopen(searchURL)
