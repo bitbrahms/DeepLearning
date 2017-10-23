@@ -20,8 +20,8 @@ soup = BeautifulSoup(r.text, 'lxml')
 #print("%-6s%-10s%-10s" % ("comp", "price", "code"))
 #for i in range(lens):
 #   print('%-6s%-10s%-10s' % (comp[i].string, price[i], code[i]))
-   
-   
+
+
 partten = re.compile('class="wsod_symbol">(.*)<\/a>.*title="(.*)".*\n.*class="wsod_stream">(.*)<\/span')
 dow_list = re.findall(partten, r.text)
 print(dow_list)

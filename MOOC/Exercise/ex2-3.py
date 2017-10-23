@@ -10,7 +10,7 @@ def Mod37(i):
         return False
     else:
         return True
-    
+
 def nums(i):
     sevs = i % 10
     tens = (i // 10) % 10

@@ -1,14 +1,5 @@
 
-""""language"""""""""""""""""""""""""""""""""""
-let &termencoding=&encoding
-set fileencodings=utf-8,gbk
 
-"""" set solarized"""""""""""""""""""""""""""""
-syntax enable
-set background=dark
-colorscheme solarized
-"colorscheme molokai
-"colorscheme phd
 
 """"vundle"""""""""""""""""""""""""""""""""""""
 set nocompatible              
@@ -51,6 +42,18 @@ filetype plugin indent on    " required
 """"""""""""""""END""""""""""""""""
 
 """""""""others""""""""""""""""""""""""""""""
+""""language"""""""""""""""""""""""""""""""""""
+let &termencoding=&encoding
+set fileencodings=utf-8,gbk
+
+"""" set solarized"""""""""""""""""""""""""""""
+syntax enable
+set background=dark
+colorscheme solarized
+"colorscheme molokai
+"colorscheme phd
+
+
 "显示行号
 set nu
 

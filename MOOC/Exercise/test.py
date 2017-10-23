@@ -4,9 +4,6 @@ Created on Tue Oct 17 17:16:54 2017
 
 @author: MannyXu
 """
-
-
-
 def countchar(str):
     list_num = [0]*26
     str_ = str.lower()
