@@ -20,7 +20,7 @@ while(count_s < 50 ):
         print(count_c, item.string)
         if count_c ==50:
             break
-    
+
     partten_s = '<span class="user-stars allstar(.*?) rating"'
     s = re.findall(partten_s, r.text)
     for item in s:
@@ -28,3 +28,5 @@ while(count_s < 50 ):
         count_s += 1
     i += 1
 print('average_star:',sum/count_s)
+from bs4 import BeautifulSoup
+soup = BeautifulSoup(r.text, 'lxml')
