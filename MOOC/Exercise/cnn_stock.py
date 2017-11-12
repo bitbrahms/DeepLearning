@@ -1,16 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-Created on oct 14, 2017
+Created on Sun Nov 12 20:49:09 2017
+
 @author: manny
 """
 
-# -*- coding: utf-8 -*-
-"""
-Get djidf
- 
-@author: Dazhuang
-"""
- 
 import requests
 import re
 import pandas as pd
@@ -26,4 +20,6 @@ def retrieve_dji_list():
  
 dji_list = retrieve_dji_list()
 djidf = pd.DataFrame(dji_list)
+cols = ['code', 'name', 'lasttrade']
+djidf.columns = cols
 print(djidf)
