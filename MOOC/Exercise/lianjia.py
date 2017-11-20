@@ -28,7 +28,7 @@ headers = {'User-Agent':'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.11 (KHTML,
 #使用for循环生成1-100的数字，转化格式后与前面的URL固定部分拼成要抓取的URL。
 #设置每两个页面间隔1秒。抓取到的页面保存在html中
 
-for i in range(1,100):
+for i in range(1,10):
     if i == 1:
         i = str(i)
         a = (url + page + i + '/')
@@ -70,13 +70,13 @@ for c in followInfo:
 #将数据保存到csv文件中，别总是来回爬取链家数据不太好吧。
 import pandas as pd
 house = pd.DataFrame({'totalprice':tp,'houseinfo':hi,'followinfo':fi})
-house.to_csv('/root/PycharmProjects/test/lianjia/data_beijing.csv',encoding='utf-8',index=False)
+house.to_csv('data_beijing.csv',encoding='utf-8',index=False)
 house.head()
 
 
 import pandas as pd
 #读取csv文件
-df = pd.read_csv('/root/PycharmProjects/test/lianjia/data_beijing.csv')
+df = pd.read_csv('data_beijing.csv')
 house = pd.DataFrame(df)
 
 #对房源信息进行分列
@@ -94,7 +94,7 @@ house=pd.merge(house,followinfo_split,right_index=True, left_index=True)
 #按房源户型类别进行汇总
 huxing=house.groupby('huxing')['huxing'].agg(len)
 #查看户型汇总结果
-print(huxin)
+print(huxing)
 
 #导入图表库
 import matplotlib.pyplot as plt
