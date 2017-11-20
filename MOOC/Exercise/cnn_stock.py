@@ -1,8 +1,14 @@
 # -*- coding: utf-8 -*-
 """
+<<<<<<< HEAD
 Created on Sun Nov 12 20:49:09 2017
 
 @author: manny
+=======
+Created on Sun Nov 12 14:50:17 2017
+
+@author: MannyXu
+>>>>>>> 6399ca80ebfb10368e2c3af3ec219a4d1cd2b322
 """
 
 import requests
@@ -20,6 +26,9 @@ def retrieve_dji_list():
  
 dji_list = retrieve_dji_list()
 djidf = pd.DataFrame(dji_list)
+<<<<<<< HEAD
 cols = ['code', 'name', 'lasttrade']
 djidf.columns = cols
+=======
+>>>>>>> 6399ca80ebfb10368e2c3af3ec219a4d1cd2b322
 print(djidf)
