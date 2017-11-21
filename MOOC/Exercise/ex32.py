@@ -23,5 +23,6 @@ soup = BeautifulSoup(r.text, 'lxml')
 
 
 partten = re.compile('class="wsod_symbol">(.*)<\/a>.*title="(.*)".*\n.*class="wsod_stream">(.*)<\/span')
+print(r.text)
 dow_list = re.findall(partten, r.text)
 print(dow_list)
