@@ -12,47 +12,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import time
 
-#设置列表页URL的固定部分
-url = 'https://bj.lianjia.com/ershoufang/pg'
-#设置访问网站的请求头部信息
-headers = {'User-Agent':'Mozilla/5.0 (Windows NT 6.1) \
-AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11'}
 
-#抓取100页二手房价信息
-html = ''
-for i in range(1,5):
-    url_new = (url + str(i) + '/')
-    r = requests.get(url=url_new, headers=headers)
-    html2 = r.text
-    html = html + html2
-    time.sleep(1)
-
-#解析抓取的页面内容
-lj = BeautifulSoup(html,'html.parser')
-#提取房源总价
-price=lj.find_all('div',attrs={'class':'priceInfo'})
-pi=[]
-for a in price:
-    totalPrice=a.span.string
-    pi.append(totalPrice)
-#提取房源信息
-houseInfo=lj.find_all('div',attrs={'class':'houseInfo'})
-hi=[]
-for b in houseInfo:
-    house=b.get_text()
-    hi.append(house)
-#提取房源关注度
-followInfo=lj.find_all('div',attrs={'class':'followInfo'})
-fi=[]
-for c in followInfo:
-    follow=c.get_text()
-    fi.append(follow)
-#转换成dataframe格式
-house = pd.DataFrame({'totalprice':pi,'houseinfo':hi,'followinfo':fi})
-
-house.to_csv('data_beijing.csv',encoding='utf-8-sig')
-
-'''
 #对房源信息进行分列
 houseinfo_split = pd.DataFrame((x.split('|') for x in house.houseinfo),index=house.index,columns=['xiaoqu','huxing','mianji','chaoxiang','zhuangxiu','dianti'])
 #将分列结果拼接回原数据表
@@ -75,6 +35,7 @@ plt.ylabel('户型')
 plt.title('房型数量分布')
 plt.legend(['数量'], loc='upper right')
 plt.show()
+'''
 #对房源面积进行二次分列
 mianji_num_split = pd.DataFrame((x.split('平') for x in house.mianji),index=house.index,columns=['mianji_num','mi'])
 #将分列后的房源面积拼接回原数据表
@@ -143,6 +104,3 @@ house['label'] = clf.labels_
 #显示所有数据内容
 #print(house.label)
 '''
-
-#if __name__ == '__main__':    
-#   main()

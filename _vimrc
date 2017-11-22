@@ -24,17 +24,17 @@ call vundle#begin('$VIM/vimfiles/bundle/')	"插件安装目录
 " 6、避免插件名冲突,例如L9已存在,则可以指定
 "Plugin 'user/L9', {'name': 'newL9'}
 
-:Plugin 'VundleVim/Vundle.vim'
+Plugin 'VundleVim/Vundle.vim'
 
 Plugin 'python-mode/python-mode'
-Plugin 'scrooloose/nerdtree'
-Plugin 'kien/ctrlp.vim'
+"Plugin 'scrooloose/nerdtree'
+"Plugin 'kien/ctrlp.vim'
 Plugin 'altercation/vim-colors-solarized'
 "Plugin 'vim-scripts/taglist.vim'
 "Plugin 'majutsushi/tagbar'
 "Plugin 'vim-scripts/TaskList.vim'
 "Plugin 'Valloric/YouCompleteMe'
-Plugin 'davidhalter/jedi-vim'
+"Plugin 'davidhalter/jedi-vim'
 "Plugin 'w0rp/ale'
 call vundle#end()            " required
 filetype plugin indent on    " required
