@@ -13,14 +13,14 @@ import matplotlib.pyplot as plt
 import time
 
 # 设置列表页URL的固定部分
-url = 'https://sh.lianjia.com/ershoufang/d'
+url = 'https://bj.lianjia.com/ershoufang/pg'
 # 设置访问网站的请求头部信息
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1) \
 AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11'}
 
 # 抓取100页二手房价信息
 html = ''
-for i in range(1, 2):
+for i in range(1, 5):
     url_new = (url + str(i) + '/')
     r = requests.get(url=url_new, headers=headers)
     html2 = r.text
@@ -30,13 +30,11 @@ for i in range(1, 2):
 # 解析抓取的页面内容
 lj = BeautifulSoup(html, 'html.parser')
 # 提取房源总价
-price = lj.find_all('div', attrs={'class': 'prop-title'})
+price = lj.find_all('div', attrs={'class': 'priceInfo'})
 pi = []
 for a in price:
     totalPrice = a.span.string
     pi.append(totalPrice)
-print(pi)
-'''
 # 提取房源信息
 houseInfo = lj.find_all('div', attrs={'class': 'houseInfo'})
 hi = []
@@ -156,4 +154,3 @@ house['label'] = clf.labels_
 house.to_csv('data_beijing.csv', encoding='utf-8-sig')
 # if __name__ == '__main__':
 #   main()
-'''
