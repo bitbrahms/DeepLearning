@@ -5,6 +5,7 @@ Created on Mon Nov 20 22:42:45 2017
 @author: manny
 """
 
+<<<<<<< HEAD
 import requests
 from bs4 import BeautifulSoup
 import numpy as np
@@ -70,6 +71,8 @@ Created on Mon Nov 20 22:42:45 2017
 @author: manny
 """
 
+=======
+>>>>>>> 0857d91fa43f296cc898f5a9a1d83eb8c0bee32f
 #主要程序
 import requests
 import re
