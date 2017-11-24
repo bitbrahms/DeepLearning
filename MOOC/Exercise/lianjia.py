@@ -18,7 +18,7 @@ url = 'https://sh.lianjia.com/ershoufang/d'
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1) \
 AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11'}
 
-<<<<<<< HEAD
+
 # 抓取100页二手房价信息
 html = ''
 for i in range(1, 2):
@@ -33,7 +33,7 @@ lj = BeautifulSoup(html, 'html.parser')
 # 提取房源总价
 price = lj.find_all('div', attrs={'class': 'prop-title'})
 pi = []
-=======
+
 #使用for循环生成1-100的数字，转化格式后与前面的URL固定部分拼成要抓取的URL。
 #设置每两个页面间隔1秒。抓取到的页面保存在html中
 
@@ -52,11 +52,11 @@ lj = BeautifulSoup(html,'html.parser')
 #提取房源总价
 price=lj.find_all('div',attrs={'class':'priceInfo'})
 pi=[]
->>>>>>> 0857d91fa43f296cc898f5a9a1d83eb8c0bee32f
 for a in price:
+    #print(a)
     totalPrice = a.span.string
     pi.append(totalPrice)
-print(pi)
+#print(pi)
 '''
 # 提取房源信息
 houseInfo = lj.find_all('div', attrs={'class': 'houseInfo'})
