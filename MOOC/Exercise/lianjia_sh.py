@@ -35,16 +35,15 @@ for j in range(0,1):#网站每页呈现30条数据，循环爬取
     #print(soup_sub)
     #print(soup_sub.select('.module-row li'))
 
-    b=soup_sub.find_all(lambda tag: tag.name=='span' and tag.get('class')==['item-cell'])
-    for info in b:#提取class=content标签下的li标签房屋信息
+    #b=soup_sub.select('.item-cell')
+    b=soup_sub.select('.baseinfo-col2 li')
+    print(b)
+    pi=[]
+    for info in b:#提取class=conte1nt标签下的li标签房屋信息
         #print(info.get_text())
-        a=info.get_text(strip=True)#推荐的去空格方法，比strip（）好用
+        pi.append(info.get_text(strip=True))#推荐的去空格方法，比strip（）好用
         #a=info.span.string
-        print(a)
-        #a=info.get_text()
-        if '\n' in a:#要有冒号的，用中文的冒号，因为网页中是中文  
-            key,value=a.split('\n')#根据冒号切分出键和值
-            info[key]=value
-    info['总价']=soup_sub.select('.bold')[0].text.strip()#提取总价信息
+    print(pi)
+    print(len(pi))
     #print(info)
     #return info#传回这一个页面的详细信息
