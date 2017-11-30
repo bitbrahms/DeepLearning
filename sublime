@@ -1,0 +1,15 @@
+{
+	"theme": "Soda SolarizedDark.sublime-theme",
+	//"color_scheme"        : "Packages/Color Scheme - Default/Monokai.tmTheme",    // theme
+	"draw_minimap_border" : true,                                                 // 右侧缩略图边框
+	"font_face"           : "YaHei Consolas Hybrid",                              // 字体设置
+	"font_size"           : 13,                                                   // 字体大小
+	"highlight_line"      : true,                                                 // 当前行标亮
+	"ignored_packages"    :	["Toggle Css Format"],                                // 开启vim模式
+	"save_on_focus_lost"  : true,                                                 // 失去焦点后保存
+	"auto_complete"       : false,                                                // 失去焦点后保存
+	"word_wrap"           : false,                                                // 强制不换行
+	"word_separators"     : "./\\()\"':,.;<>~!@#$%^&*|+=[]{}`~?",                 // 双击选中中划线
+	"update_check"        : false  
+}
+
