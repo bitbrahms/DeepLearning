@@ -1,0 +1,2 @@
+#LWP-Cookies-2.0
+Set-Cookie3: bid=6L2x_qdgMIo; path="/"; domain=".douban.com"; path_spec; domain_dot; expires="2018-12-05 02:04:26Z"; version=0
